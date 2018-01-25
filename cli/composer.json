@@ -1,0 +1,14 @@
+{
+    "require": {
+        "symfony/console": "^4.0",
+        "ramsey/uuid": "^3.7",
+        "tokenly/api-client": "^1.0",
+        "tokenly/crypto-quantity": "^1.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "SubstationCLI\\Commands\\": "./lib",
+            "Tokenly\\SubstationClient\\": "../src"
+        }
+    }
+}
