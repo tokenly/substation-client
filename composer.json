@@ -18,7 +18,8 @@
         "php": "^7.0",
         "illuminate/support": "~5.2",
         "ramsey/uuid": "^3.7",
-        "tokenly/api-client": "^1.0"
+        "tokenly/api-client": "^1.0",
+        "tokenly/crypto-quantity": "^1.1"
     },
     "require-dev": {
         "phpunit/phpunit" : "~6.0",

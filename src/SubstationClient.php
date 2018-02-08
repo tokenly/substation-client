@@ -4,6 +4,7 @@ namespace Tokenly\SubstationClient;
 
 use Ramsey\Uuid\Uuid;
 use Tokenly\APIClient\TokenlyAPI;
+use Tokenly\CryptoQuantity\CryptoQuantity;
 use Tokenly\HmacAuth\Generator;
 
 /**
@@ -180,11 +181,11 @@ class SubstationClient extends TokenlyAPI
     // ------------------------------------------------------------------------
     // Send methods
 
-    public function createSendToSingleDestination($wallet_uuid, $source_uuid, $asset, $destination_quantity, $destination_address, $send_parameters = null)
+    public function createSendToSingleDestination($wallet_uuid, $source_uuid, $asset, CryptoQuantity $destination_quantity, $destination_address, $send_parameters = null)
     {
         $destinations = [[
             'address' => $destination_address,
-            'quantity' => $destination_quantity,
+            'quantity' => $destination_quantity->getSatoshisString(),
         ]];
 
         return $this->createNewSendTransaction($wallet_uuid, $source_uuid, $asset, $destinations, $send_parameters);
@@ -255,15 +256,18 @@ class SubstationClient extends TokenlyAPI
     // ------------------------------------------------------------------------
     
     protected function combineBalances($api_call_result) {
+        $quantity_class_name = "Tokenly\CryptoQuantity\\".$api_call_result['quantityType'];
+
+
         $balance_map = [];
         foreach($api_call_result['unconfirmedBalances'] as $entry) {
             $balance_map[$entry['asset']] = [
-                'unconfirmed' => $entry['quantity'],
+                'unconfirmed' => call_user_func([$quantity_class_name, 'fromSatoshis'], $entry['quantity']),
                 'confirmed' => '0',
             ];
         }
         foreach($api_call_result['confirmedBalances'] as $entry) {
-            $balance_map[$entry['asset']]['confirmed'] = $entry['quantity'];
+            $balance_map[$entry['asset']]['confirmed'] = call_user_func([$quantity_class_name, 'fromSatoshis'], $entry['quantity']);
         }
 
         $combined_output = [];
