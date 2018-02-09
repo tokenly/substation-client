@@ -44,7 +44,7 @@ class SubstationClient extends TokenlyAPI
 
     /**
      * Creates a wallet managed by substation
-     * 
+     *
      * @param  string $chain                   blockchain (bitcoin, bitcoinTestnet, etc)
      * @param  string $name                    wallet name for reference
      * @param  string $notification_queue_name The internal notification queue name
@@ -185,7 +185,7 @@ class SubstationClient extends TokenlyAPI
     {
         $destinations = [[
             'address' => $destination_address,
-            'quantity' => $destination_quantity->getSatoshisString(),
+            'quantity' => $destination_quantity->jsonSerialize(),
         ]];
 
         return $this->createNewSendTransaction($wallet_uuid, $source_uuid, $asset, $destinations, $send_parameters);
@@ -254,24 +254,22 @@ class SubstationClient extends TokenlyAPI
     }
 
     // ------------------------------------------------------------------------
-    
-    protected function combineBalances($api_call_result) {
-        $quantity_class_name = "Tokenly\CryptoQuantity\\".$api_call_result['quantityType'];
 
-
+    protected function combineBalances($api_call_result)
+    {
         $balance_map = [];
-        foreach($api_call_result['unconfirmedBalances'] as $entry) {
+        foreach ($api_call_result['unconfirmedBalances'] as $entry) {
             $balance_map[$entry['asset']] = [
-                'unconfirmed' => call_user_func([$quantity_class_name, 'fromSatoshis'], $entry['quantity']),
-                'confirmed' => '0',
+                'unconfirmed' => $this->buildQuantityObject($entry['quantity']),
+                'confirmed' => CryptoQuantity::fromSatoshis('0'),
             ];
         }
-        foreach($api_call_result['confirmedBalances'] as $entry) {
-            $balance_map[$entry['asset']]['confirmed'] = call_user_func([$quantity_class_name, 'fromSatoshis'], $entry['quantity']);
+        foreach ($api_call_result['confirmedBalances'] as $entry) {
+            $balance_map[$entry['asset']]['confirmed'] = $this->buildQuantityObject($entry['quantity']);
         }
 
         $combined_output = [];
-        foreach($balance_map as $asset => $entry) {
+        foreach ($balance_map as $asset => $entry) {
             $combined_output[] = $entry + [
                 'asset' => $asset,
             ];
@@ -280,5 +278,9 @@ class SubstationClient extends TokenlyAPI
         return $combined_output;
     }
 
+    protected function buildQuantityObject($quantity)
+    {
+        return CryptoQuantity::fromSatoshis($quantity['value'], $quantity['precision']);
+    }
 
 }
