@@ -12,6 +12,8 @@ $app->add(new SubstationCLI\Commands\AllocateAddress());
 $app->add(new SubstationCLI\Commands\GetAddress());
 $app->add(new SubstationCLI\Commands\GetBalances());
 $app->add(new SubstationCLI\Commands\CreateSend());
+$app->add(new SubstationCLI\Commands\EstimateFee());
+$app->add(new SubstationCLI\Commands\CompleteSend());
 $app->add(new SubstationCLI\Commands\BroadcastSignedSend());
 
 try {

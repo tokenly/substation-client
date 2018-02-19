@@ -71,9 +71,21 @@ class CreateWallet extends SubstationCommand {
 
         // init the client
         $client = $this->getClient($input);
-        $output->writeln("<comment>calling createWallet($chain, $x_pub_key, $name, $wallet_type)</comment>");
-        $result = $client->createWallet($chain, $x_pub_key, $name, $wallet_type);
-        $output->writeln("<info>Result\n".json_encode($result, 192)."</info>");
+        switch ($wallet_type) {
+            case 'client':
+                $output->writeln("<comment>calling createClientManagedWallet($chain, $x_pub_key, $name)</comment>");
+                $result = $client->createClientManagedWallet($chain, $x_pub_key, $name);
+                $output->writeln("<info>Result\n".json_encode($result, 192)."</info>");
+                break;
+            case 'managed':
+                $output->writeln("<comment>calling createServerManagedWallet($chain, $name)</comment>");
+                $result = $client->createServerManagedWallet($chain, $name);
+                $output->writeln("<info>Result\n".json_encode($result, 192)."</info>");
+                break;
+            
+            default:
+                throw new Exception("Unknown wallet type $wallet_type", 1);
+        }
     }
 
 }

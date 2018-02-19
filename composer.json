@@ -17,6 +17,7 @@
     "require": {
         "php": "^7.0",
         "illuminate/support": "~5.2",
+        "mockery/mockery": "^1.0",
         "ramsey/uuid": "^3.7",
         "tokenly/api-client": "^1.0",
         "tokenly/crypto-quantity": "^2"
@@ -31,9 +32,9 @@
         }
     },
     "autoload-dev": {
-        "psr-4": {
-            "Tokenly\\SubstationClient\\": "tests"
-        }
+        "classmap": [
+            "testlib/"
+        ]
     },
     "scripts": {
         "test": "phpunit",

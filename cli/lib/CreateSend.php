@@ -11,8 +11,8 @@ use Tokenly\CryptoQuantity\CryptoQuantity;
 class CreateSend extends SubstationCommand
 {
 
-    protected $name = 'create-send';
-    protected $description = 'Creates a new send';
+    protected $name = 'send';
+    protected $description = 'Sends immediately from a managed wallet';
 
     protected function configure()
     {
@@ -60,7 +60,7 @@ class CreateSend extends SubstationCommand
         $wallet_uuid = $input->getArgument('wallet-uuid');
         $asset = $input->getOption('asset');
         $destination_address = $input->getOption('destination');
-        $destination_quantity = CryptoQuantity::valueToSatoshis($input->getOption('quantity'));
+        $destination_quantity = CryptoQuantity::fromFloat($input->getOption('quantity'));
         $source_uuid = $input->getOption('source-id');
         $fee_rate = $input->getOption('fee-rate');
 
@@ -69,9 +69,18 @@ class CreateSend extends SubstationCommand
 
         // init the client
         $client = $this->getClient($input);
-        $output->writeln("<comment>calling createSendToSingleDestination($wallet_uuid, $source_uuid, $asset, $destination_quantity, $destination_address, ".json_encode($send_parameters).")</comment>");
-        $result = $client->createSendToSingleDestination($wallet_uuid, $source_uuid, $asset, $destination_quantity, $destination_address, $send_parameters);
+
+        // do the send
+        $this->executeSendCommand($output, $client, $wallet_uuid, $source_uuid, $asset, $destination_quantity, $destination_address, $send_parameters);
+    }
+
+    protected function executeSendCommand(OutputInterface $output, $client, $wallet_uuid, $source_uuid, $asset, CryptoQuantity $destination_quantity, $destination_address, $send_parameters) {
+        // create the send
+        // createNewSendToSingleDestination($wallet_uuid, $source_uuid, $asset, CryptoQuantity $destination_quantity, $destination_address, $send_parameters = null)
+        $output->writeln("<comment>calling sendImmediatelyToSingleDestination($wallet_uuid, $source_uuid, $asset, $destination_quantity, $destination_address, ".json_encode($send_parameters).")</comment>");
+        $result = $client->sendImmediatelyToSingleDestination($wallet_uuid, $source_uuid, $asset, $destination_quantity, $destination_address, $send_parameters);
         $output->writeln("<info>Result\n" . json_encode($result, 192) . "</info>");
+        return $result;
     }
 
 }
