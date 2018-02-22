@@ -9,6 +9,8 @@ use Tokenly\HmacAuth\Generator;
 
 /**
  * Class SubstationClient
+ * See the link for API response definitions
+ * @link https://app.swaggerhub.com/apis/tokenly/Substation
  */
 class SubstationClient extends TokenlyAPI
 {
@@ -21,6 +23,12 @@ class SubstationClient extends TokenlyAPI
     // -----------------------------------------
     // wallet methods
 
+    /**
+     * Shows all wallets belonging to this client
+     * @param  integer $page_offset For clients with large wallets, use this to page
+     * @param  integer $items_per_page Number of items per page (max is 50)
+     * @return array Returns a list of wallet objects.  The 'items' key has the list of items
+     */
     public function getWallets($page_offset = 0, $items_per_page = 50)
     {
         $parameters = $this->addPagingToParameters([], $page_offset, $items_per_page);
@@ -28,6 +36,11 @@ class SubstationClient extends TokenlyAPI
         return $this->newAPIRequest('GET', 'wallets', $parameters);
     }
 
+    /**
+     * Get wallet information by id
+     * @param  string $wallet_uuid The wallet id
+     * @return array Wallet information
+     */
     public function getWalletById($wallet_uuid)
     {
         $parameters = [];
@@ -80,6 +93,14 @@ class SubstationClient extends TokenlyAPI
         return $this->createWallet($chain, $name, 'client', $parameter_overrides);
     }
 
+    /**
+     * A lower level interface for creating a wallet
+     * @param  string $chain               blockchain (bitcoin, bitcoinTestnet, etc)
+     * @param  string $name                wallet name for reference
+     * @param  string $wallet_type         client or managed
+     * @param  array  $parameter_overrides Additional API attributes
+     * @return array                           The new wallet information
+     */
     public function createWallet($chain, $name, $wallet_type, $parameter_overrides = [])
     {
         $parameters = array_merge([
@@ -94,12 +115,23 @@ class SubstationClient extends TokenlyAPI
     // -----------------------------------------
     // address methods
 
+    /**
+     * Allocates the next available address for the wallet
+     * @param  string $wallet_uuid The wallet id
+     * @return array the Address information including address and uuid
+     */
     public function allocateAddress($wallet_uuid)
     {
         $parameters = [];
         return $this->newAPIRequest('POST', $wallet_uuid . '/addresses', $parameters);
     }
 
+    /**
+     * Fetches address information by address id
+     * @param  string $wallet_uuid  The wallet id
+     * @param  string $address_uuid The address id
+     * @return array the Address information
+     */
     public function getAddressById($wallet_uuid, $address_uuid)
     {
         $parameters = [
@@ -108,6 +140,12 @@ class SubstationClient extends TokenlyAPI
         return $this->newAPIRequest('GET', $wallet_uuid . '/address', $parameters);
     }
 
+    /**
+     * Fetches address information by address hash
+     * @param  string $wallet_uuid  The wallet id
+     * @param  string $address_hash The address hash such as 1AAAA1111xxxxxxxxxxxxxxxxxxy43CZ9j
+     * @return array the Address information
+     */
     public function getAddressByHash($wallet_uuid, $address_hash)
     {
         $parameters = [
@@ -116,6 +154,13 @@ class SubstationClient extends TokenlyAPI
         return $this->newAPIRequest('GET', $wallet_uuid . '/address', $parameters);
     }
 
+    /**
+     * Fetches a list of all address for this wallet
+     * @param  string  $wallet_uuid  The wallet id
+     * @param  integer $page_offset For large address collections, use this to select a page
+     * @param  integer $items_per_page Number of items per page (max is 50)
+     * @return array Returns a list of address objects.  The 'items' key has the list of items
+     */
     public function getAddresses($wallet_uuid, $page_offset = 0, $items_per_page = 50)
     {
         $parameters = $this->addPagingToParameters([], $page_offset, $items_per_page);
@@ -126,33 +171,72 @@ class SubstationClient extends TokenlyAPI
     // ------------------------------------------------------------------------
     // Balance methods
 
+    /**
+     * Fetches balances for the given address
+     * Balances returned are an array like this:
+     * [
+     *   'BTC' => [
+     *       'asset' => 'BTC',
+     *       'quantity' => Tokenly\CryptoQuantity\CryptoQuantity::fromSatoshis('500000'),
+     *   ],
+     *   'TOKENLY' => [
+     *       'asset' => 'TOKENLY',
+     *       'quantity' => Tokenly\CryptoQuantity\CryptoQuantity::fromSatoshis('100000000'),
+     *   ],
+     * ]
+     * @param  string $wallet_uuid  The wallet id
+     * @param  string $address_uuid The address id
+     * @return array an array of balance entries keyed by the asset
+     */
     public function getConfirmedAddressBalanceById($wallet_uuid, $address_uuid)
     {
-        return $this->getAddressBalanceById($wallet_uuid, $address_uuid)['confirmedBalances'];
-    }
-
-    public function getConfirmedAddressBalanceByHash($wallet_uuid, $address_hash)
-    {
-        return $this->getAddressBalanceByHash($wallet_uuid, $address_hash)['confirmedBalances'];
-    }
-
-    public function getUnconfirmedAddressBalanceById($wallet_uuid, $address_uuid)
-    {
-        return $this->getAddressBalanceById($wallet_uuid, $address_uuid)['unconfirmedBalances'];
-    }
-
-    public function getUnconfirmedAddressBalanceByHash($wallet_uuid, $address_hash)
-    {
-        return $this->getAddressBalanceByHash($wallet_uuid, $address_hash)['unconfirmedBalances'];
+        return $this->assembleBalanceMap($this->getAddressBalanceById($wallet_uuid, $address_uuid)['confirmedBalances']);
     }
 
     /**
+     * Fetches balances for the given address hash excluding unconfirmed balances
+     * @see getConfirmedAddressBalanceById
+     * @param  string $wallet_uuid  The wallet id
+     * @param  string $address_hash The address hash such as 1AAAA1111xxxxxxxxxxxxxxxxxxy43CZ9j
+     * @return array an array of balance entries keyed by the asset
+     */
+    public function getConfirmedAddressBalanceByHash($wallet_uuid, $address_hash)
+    {
+        return $this->assembleBalanceMap($this->getAddressBalanceByHash($wallet_uuid, $address_hash)['confirmedBalances']);
+    }
+
+    /**
+     * Fetches balances for the given address hash including unconfirmed balances
+     * @see getConfirmedAddressBalanceById
+     * @param  string $wallet_uuid  The wallet id
+     * @param  string $address_uuid The address id
+     * @return array an array of balance entries keyed by the asset
+     */
+    public function getUnconfirmedAddressBalanceById($wallet_uuid, $address_uuid)
+    {
+        return $this->assembleBalanceMap($this->getAddressBalanceById($wallet_uuid, $address_uuid)['unconfirmedBalances']);
+    }
+
+    /**
+     * Fetches balances for the given address hash including unconfirmed balances
+     * @see getConfirmedAddressBalanceById
+     * @param  string $wallet_uuid  The wallet id
+     * @param  string $address_hash The address hash such as 1AAAA1111xxxxxxxxxxxxxxxxxxy43CZ9j
+     * @return array an array of balance entries keyed by the asset
+     */
+    public function getUnconfirmedAddressBalanceByHash($wallet_uuid, $address_hash)
+    {
+        return $this->assembleBalanceMap($this->getAddressBalanceByHash($wallet_uuid, $address_hash)['unconfirmedBalances']);
+    }
+
+    /**
+     * Fetches confirmed and unconfirmed balances for the given address id
      * Returns an array like:
      * [
-     *   [
+     *   'BTC' => [
      *       'asset' => 'BTC',
-     *       'confirmed' => '1000000',
-     *       'unconfirmed' => '2000000',
+     *       'confirmed' => Tokenly\CryptoQuantity\CryptoQuantity::fromSatoshis('1000000'),
+     *       'unconfirmed' => Tokenly\CryptoQuantity\CryptoQuantity::fromSatoshis('1000000'),
      *   ],
      * ]
      * @param  string $wallet_uuid  wallet uuid
@@ -165,14 +249,8 @@ class SubstationClient extends TokenlyAPI
     }
 
     /**
-     * Returns an array like:
-     * [
-     *   [
-     *       'asset' => 'BTC',
-     *       'confirmed' => '1000000',
-     *       'unconfirmed' => '2000000',
-     *   ],
-     * ]
+     * Fetches confirmed and unconfirmed balances for the given address hash
+     * @see getCombinedAddressBalanceById
      * @param  string $wallet_uuid  wallet uuid
      * @param  string $address_hash address hash like 1AAAA1111xxxxxxxxxxxxxxxxxxy43CZ9j
      * @return array                array of combined balances
@@ -182,21 +260,6 @@ class SubstationClient extends TokenlyAPI
         return $this->combineBalances($this->getAddressBalanceByHash($wallet_uuid, $address_hash));
     }
 
-    public function getAddressBalanceById($wallet_uuid, $address_uuid)
-    {
-        $parameters = [
-            'uuid' => $address_uuid,
-        ];
-        return $this->newAPIRequest('GET', $wallet_uuid . '/address/balance', $parameters);
-    }
-
-    public function getAddressBalanceByHash($wallet_uuid, $address_hash)
-    {
-        $parameters = [
-            'hash' => $address_hash,
-        ];
-        return $this->newAPIRequest('GET', $wallet_uuid . '/address/balance', $parameters);
-    }
 
     // ------------------------------------------------------------------------
     // Send methods
@@ -290,6 +353,26 @@ class SubstationClient extends TokenlyAPI
         return $this->newAPIRequest('PATCH', $wallet_uuid . '/send/' . $send_uuid, $parameters);
     }
 
+
+
+    // ------------------------------------------------------------------------
+
+    protected function getAddressBalanceById($wallet_uuid, $address_uuid)
+    {
+        $parameters = [
+            'uuid' => $address_uuid,
+        ];
+        return $this->newAPIRequest('GET', $wallet_uuid . '/address/balance', $parameters);
+    }
+
+    protected function getAddressBalanceByHash($wallet_uuid, $address_hash)
+    {
+        $parameters = [
+            'hash' => $address_hash,
+        ];
+        return $this->newAPIRequest('GET', $wallet_uuid . '/address/balance', $parameters);
+    }
+    
     // ------------------------------------------------------------------------
 
     /**
@@ -389,12 +472,21 @@ class SubstationClient extends TokenlyAPI
 
         $combined_output = [];
         foreach ($balance_map as $asset => $entry) {
-            $combined_output[] = $entry + [
+            $combined_output[$asset] = $entry + [
                 'asset' => $asset,
             ];
         }
 
         return $combined_output;
+    }
+
+    protected function assembleBalanceMap($balances_list) {
+        $balance_map = [];
+        foreach ($balances_list as $entry) {
+            $entry['quantity'] = CryptoQuantity::unserialize($entry['quantity']);
+            $balance_map[$entry['asset']] = $entry;
+        }
+        return $balance_map;
     }
 
     protected function buildQuantityObject($quantity)

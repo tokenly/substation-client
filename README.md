@@ -39,4 +39,6 @@ $address_uuid = $response['uuid'];
 $address_hash = $response['address']; // An address hash like 1AAAA1111xxxxxxxxxxxxxxxxxxy43CZ9j
 ```
 
+Client methods are documented inline in the [SubstationClient class](src/SubstationClient.php).
+
 For details of the API calls, see https://app.swaggerhub.com/apis/tokenly/Substation/1.0.0.

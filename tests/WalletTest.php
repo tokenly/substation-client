@@ -45,7 +45,7 @@ class WalletTest extends TestCase
     {
 
         $client = new MockSubstationClient();
-        $client->createServerManagedWallet($_chain = 'bitcoin', $_name = 'my server wallet', $_notification_queue_name = 'myapp');
+        $client->createServerManagedWallet($_chain = 'bitcoin', $_name = 'my server wallet', $_unlock_phrase = null, $_notification_queue_name = 'myapp');
 
         APITestHelper::assertAPICalled($client, 'POST', 'wallets', [
             'walletType' => 'managed',
