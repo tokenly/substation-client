@@ -13,6 +13,7 @@ class MockSubstationClient extends SubstationClient
 {
 
     static $WALLET_STORE;
+    static $ADDRESS_STORE;
 
     public $all_api_calls = [];
 
@@ -43,6 +44,13 @@ class MockSubstationClient extends SubstationClient
         return self::$WALLET_STORE;
     }
 
+    public static function installMockSubstationClient()
+    {
+        $mock_substation_client = new MockSubstationClient('http://localhost:9999');
+        app()->instance(SubstationClient::class, $mock_substation_client);
+        return $mock_substation_client;
+    }
+
     // ------------------------------------------------------------------------
 
     public function __construct($api_url = '', $api_token = null, $api_secret_key = null)
@@ -50,16 +58,15 @@ class MockSubstationClient extends SubstationClient
         parent::__construct($api_url, $api_token, $api_secret_key);
     }
 
-    public function createNewWallet($chain, $x_pub_key, $name, $wallet_type)
+    public function createWallet($chain, $name, $wallet_type, $parameter_overrides = [])
     {
         $uuid = Uuid::uuid4()->toString();
-        $wallet = [
+        $wallet = array_merge([
             'uuid' => $uuid,
             'chain' => $chain,
-            'xPubKey' => $x_pub_key,
             'name' => $name,
             'walletType' => $wallet_type,
-        ];
+        ], $parameter_overrides);
 
         self::initWallets();
 
@@ -101,6 +108,39 @@ class MockSubstationClient extends SubstationClient
 
     // ------------------------------------------------------------------------
 
+    protected function newAPIRequest_POST_UUID_addresses($parameters, $uuids, $options)
+    {
+        $wallet_uuid = $uuids[0];
+
+        $addresses = self::$ADDRESS_STORE[$wallet_uuid] ?? [];
+
+        // build an address
+        $count = count($addresses);
+        switch ($count) {
+            case '0':
+                $address = '1AAAA1111xxxxxxxxxxxxxxxxxxy43CZ9j';
+                break;
+            case '1':
+                $address = '1AAAA2222xxxxxxxxxxxxxxxxxxy4pQ3tU';
+                break;
+            default:
+                $address = '1AAAA3333xxxxxxxxxxxxxxxxxxxsTtS6v';
+                break;
+        }
+        $address_model = [
+            'index' => $count,
+            'address' => '1AAAA1111xxxxxxxxxxxxxxxxxxy43CZ9j',
+            'change' => false,
+            'uuid' => Uuid::uuid4()->toString(),
+        ];
+
+        // save address
+        $addresses[] = $address_model;
+        self::$ADDRESS_STORE[$wallet_uuid] = $addresses;
+
+        // return address
+        return $address_model;
+    }
     protected function newAPIRequest_GET_UUID_address_balance($parameters, $uuids, $options)
     {
         return [
