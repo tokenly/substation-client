@@ -51,6 +51,32 @@ class MockSubstationClient extends SubstationClient
         return $mock_substation_client;
     }
 
+    public static function sampleAddress(string $blockchain_name, $offset = 0)
+    {
+        switch ($blockchain_name) {
+            case 'bitcoin':
+                $addresses = ['1AAAA1111xxxxxxxxxxxxxxxxxxy43CZ9j', '1AAAA2222xxxxxxxxxxxxxxxxxxy4pQ3tU', '1AAAA3333xxxxxxxxxxxxxxxxxxxsTtS6v'];
+                break;
+            case 'bitcoinTestnet':
+                $addresses = ['mszKvXQgvN3Dv8ifidzb5tpa6oRpUZd2Mt', 'mgFRGY1KbbRTj3dMdw7KQaapvZCy6ne2Ha', 'n4nDp9W2x54oFxdWSHdf4fADLhW7grAHme'];
+                break;
+            case 'ethereum':
+                $addresses = ['0x7197F280659411591feD3899C45aB20aa80d5901', '0x7f1B5e1290eA052a6A3C605FA05e3b910C768691', '0x363b777E69043439020CB3528Aa450ba85ED45F6'];
+                break;
+            case 'ethereumTestnet':
+                $addresses = ['0x7f1B5e1290eA052a6A3C605FA05e3b910C768691', '0x7197F280659411591feD3899C45aB20aa80d5901', '0x1CBFf6551B8713296b0604705B1a3B76D238Ae14'];
+                break;
+            default:
+                throw new Exception("Unknown blockchain type {$blockchain_name}", 1);
+        }
+
+        if (!isset($addresses[$offset])) {
+            throw new Exception("Unknown address for offset $offset", 1);
+        }
+
+        return $addresses[$offset];
+    }
+
     // ------------------------------------------------------------------------
 
     public function __construct($api_url = '', $api_token = null, $api_secret_key = null)
@@ -112,24 +138,17 @@ class MockSubstationClient extends SubstationClient
     {
         $wallet_uuid = $uuids[0];
 
+        $wallet = self::$WALLET_STORE[$wallet_uuid] ?? null;
+        $chain = ($wallet ? $wallet['chain'] : 'bitcoin');
         $addresses = self::$ADDRESS_STORE[$wallet_uuid] ?? [];
 
         // build an address
         $count = count($addresses);
-        switch ($count) {
-            case '0':
-                $address = '1AAAA1111xxxxxxxxxxxxxxxxxxy43CZ9j';
-                break;
-            case '1':
-                $address = '1AAAA2222xxxxxxxxxxxxxxxxxxy4pQ3tU';
-                break;
-            default:
-                $address = '1AAAA3333xxxxxxxxxxxxxxxxxxxsTtS6v';
-                break;
-        }
+        $address = self::sampleAddress($chain, $count);
+
         $address_model = [
             'index' => $count,
-            'address' => '1AAAA1111xxxxxxxxxxxxxxxxxxy43CZ9j',
+            'address' => $address,
             'change' => false,
             'uuid' => Uuid::uuid4()->toString(),
         ];
