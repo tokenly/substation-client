@@ -190,6 +190,7 @@ class MockSubstationClient extends SubstationClient
             'destinations' => $this->sanitizeDestinations($parameters['destinations']),
             'feeRate' => $parameters['feeRate'],
             'feePaid' => $fee_paid->jsonSerialize(),
+            'txid' => hash('sha256', $uuid),
         ];
     }
 }
