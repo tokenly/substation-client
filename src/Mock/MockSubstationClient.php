@@ -4,6 +4,7 @@ namespace Tokenly\SubstationClient\Mock;
 
 use Ramsey\Uuid\Uuid;
 use Tokenly\CryptoQuantity\CryptoQuantity;
+use Tokenly\CryptoQuantity\EthereumCryptoQuantity;
 use Tokenly\SubstationClient\SubstationClient;
 
 /**
@@ -118,16 +119,9 @@ class MockSubstationClient extends SubstationClient
         }
         $method_path = strtoupper($method) . '_' . preg_replace('![^a-zA-Z0-9_]!', '_', $path);
         $mocked_method = "newAPIRequest_{$method_path}";
-        // echo "\$mocked_method: " . json_encode($mocked_method, 192) . "\n";
         if (method_exists($this, $mocked_method)) {
             return call_user_func([$this, $mocked_method], $parameters, $uuids, $options);
         }
-
-        // switch (true) {
-        //     case preg_match('!GET_([^_]+)_address_balance!', $mocked_method):
-        //         return $this->newAPIRequest_GET_uuid_address_balance($parameters, $options);
-        //         break;
-        // }
 
         return [];
     }
@@ -182,6 +176,12 @@ class MockSubstationClient extends SubstationClient
     {
         $uuid = Uuid::uuid4()->toString();
 
+        if ($parameters['asset'] == 'ETH') {
+            $fee_paid = EthereumCryptoQuantity::fromFloat(0.0001);
+        } else {
+            $fee_paid = CryptoQuantity::fromFloat(0.0001);
+        }
+
         return [
             'uuid' => $uuid,
             'requestId' => $parameters['requestId'],
@@ -189,7 +189,7 @@ class MockSubstationClient extends SubstationClient
             'asset' => $parameters['asset'],
             'destinations' => $this->sanitizeDestinations($parameters['destinations']),
             'feeRate' => $parameters['feeRate'],
-            'feePaid' => CryptoQuantity::fromFloat(0.0001)->jsonSerialize(),
+            'feePaid' => $fee_paid->jsonSerialize(),
         ];
     }
 }
