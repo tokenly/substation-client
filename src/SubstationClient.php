@@ -72,7 +72,7 @@ class SubstationClient extends TokenlyAPI
     }
 
     /**
-     * Creates a wallet managed by substation
+     * Creates a wallet where only the client owns the private key
      *
      * @param  string $chain                   blockchain (bitcoin, bitcoinTestnet, etc)
      * @param  string $x_pub_key               The extended public key for this wallet
@@ -94,10 +94,28 @@ class SubstationClient extends TokenlyAPI
     }
 
     /**
+     * Creates a wallet with monitored addresses
+     *
+     * @param  string $chain                   blockchain (bitcoin, bitcoinTestnet, etc)
+     * @param  string $name                    wallet name for reference
+     * @param  string $notification_queue_name The internal notification queue name
+     * @return array                           The new wallet information
+     */
+    public function createMonitorOnlyWallet($chain, $name, $notification_queue_name = null)
+    {
+        $parameter_overrides = [];
+        if ($notification_queue_name !== null) {
+            $parameter_overrides['messageQueue'] = $notification_queue_name;
+        }
+
+        return $this->createWallet($chain, $name, 'monitor', $parameter_overrides);
+    }
+
+    /**
      * A lower level interface for creating a wallet
      * @param  string $chain               blockchain (bitcoin, bitcoinTestnet, etc)
      * @param  string $name                wallet name for reference
-     * @param  string $wallet_type         client or managed
+     * @param  string $wallet_type         client, managed or monitor
      * @param  array  $parameter_overrides Additional API attributes
      * @return array                           The new wallet information
      */
@@ -123,6 +141,20 @@ class SubstationClient extends TokenlyAPI
     public function allocateAddress($wallet_uuid)
     {
         $parameters = [];
+        return $this->newAPIRequest('POST', $wallet_uuid . '/addresses', $parameters);
+    }
+
+    /**
+     * Allocates a specific address to monitor for monitor-only wallets
+     * @param  string $wallet_uuid The monitor-only wallet id
+     * @param  string $address_hash The address hash such as 1AAAA1111xxxxxxxxxxxxxxxxxxy43CZ9j
+     * @return array the Address information including address and uuid
+     */
+    public function allocateMonitoredAddress($wallet_uuid, $address_hash)
+    {
+        $parameters = [
+            'address' => $address_hash,
+        ];
         return $this->newAPIRequest('POST', $wallet_uuid . '/addresses', $parameters);
     }
 
@@ -260,7 +292,6 @@ class SubstationClient extends TokenlyAPI
         return $this->combineBalances($this->getAddressBalanceByHash($wallet_uuid, $address_hash));
     }
 
-
     // ------------------------------------------------------------------------
     // Send methods
 
@@ -353,8 +384,6 @@ class SubstationClient extends TokenlyAPI
         return $this->newAPIRequest('PATCH', $wallet_uuid . '/send/' . $send_uuid, $parameters);
     }
 
-
-
     // ------------------------------------------------------------------------
 
     protected function getAddressBalanceById($wallet_uuid, $address_uuid)
@@ -372,7 +401,7 @@ class SubstationClient extends TokenlyAPI
         ];
         return $this->newAPIRequest('GET', $wallet_uuid . '/address/balance', $parameters);
     }
-    
+
     // ------------------------------------------------------------------------
 
     /**
@@ -480,7 +509,8 @@ class SubstationClient extends TokenlyAPI
         return $combined_output;
     }
 
-    protected function assembleBalanceMap($balances_list) {
+    protected function assembleBalanceMap($balances_list)
+    {
         $balance_map = [];
         foreach ($balances_list as $entry) {
             $entry['quantity'] = CryptoQuantity::unserialize($entry['quantity']);

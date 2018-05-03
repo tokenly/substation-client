@@ -46,13 +46,13 @@ class GetBalances extends SubstationCommand
         $client = $this->getClient($input);
         if ($address_uuid) {
             // get one addresses
-            $output->writeln("<comment>calling getAddressBalanceById($wallet_uuid, $address_uuid)</comment>");
-            $result = $client->getAddressBalanceById($wallet_uuid, $address_uuid);
+            $output->writeln("<comment>calling getCombinedAddressBalanceById($wallet_uuid, $address_uuid)</comment>");
+            $result = $client->getCombinedAddressBalanceById($wallet_uuid, $address_uuid);
             $output->writeln("<info>Result\n" . json_encode($result, 192) . "</info>");
         } else if ($address_hash) {
             // get one addresses
-            $output->writeln("<comment>calling getAddressBalanceByHash($wallet_uuid, $address_hash)</comment>");
-            $result = $client->getAddressBalanceByHash($wallet_uuid, $address_hash);
+            $output->writeln("<comment>calling getCombinedAddressBalanceByHash($wallet_uuid, $address_hash)</comment>");
+            $result = $client->getCombinedAddressBalanceByHash($wallet_uuid, $address_hash);
             $output->writeln("<info>Result\n" . json_encode($result, 192) . "</info>");
         } else {
             // get all addresses
