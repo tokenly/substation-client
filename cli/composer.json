@@ -4,12 +4,19 @@
         "illuminate/support": "~5.2",
         "ramsey/uuid": "^3.7",
         "tokenly/api-client": "^1.0",
-        "tokenly/crypto-quantity": "^2"
+        "tokenly/crypto-quantity": "^2",
+        "tokenly/substation-distribution-client": "dev-master"
     },
     "autoload": {
         "psr-4": {
             "SubstationCLI\\Commands\\": "./lib",
             "Tokenly\\SubstationClient\\": "../src"
         }
-    }
+    },
+    "repositories": [
+        {
+            "type": "path",
+            "url": "/Users/dweller/Development/Freelance/current/tokenly/tokenly-components/components/substation-distribution-client"
+        }
+    ]
 }

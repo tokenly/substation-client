@@ -292,6 +292,44 @@ class SubstationClient extends TokenlyAPI
         return $this->combineBalances($this->getAddressBalanceByHash($wallet_uuid, $address_hash));
     }
 
+
+    /**
+     * Fetches confirmed and unconfirmed txos for the given address id
+     * Returns an array like:
+     * [
+     *   'BTC' => [
+     *       'asset' => 'BTC',
+     *       'confirmed' => Tokenly\CryptoQuantity\CryptoQuantity::fromSatoshis('1000000'),
+     *       'unconfirmed' => Tokenly\CryptoQuantity\CryptoQuantity::fromSatoshis('1000000'),
+     *   ],
+     * ]
+     * @param  string $wallet_uuid  wallet uuid
+     * @param  string $address_uuid address uuid
+     * @return array                array of combined txos
+     */
+    public function getTXOsById($wallet_uuid, $address_uuid)
+    {
+        $parameters = [
+            'uuid' => $address_uuid,
+        ];
+        return $this->newAPIRequest('GET', $wallet_uuid . '/address/txos', $parameters);
+    }
+
+    /**
+     * Fetches confirmed and unconfirmed txos for the given address hash
+     * @see getTXOsById
+     * @param  string $wallet_uuid  wallet uuid
+     * @param  string $address_hash address hash like 1AAAA1111xxxxxxxxxxxxxxxxxxy43CZ9j
+     * @return array                array of combined txos
+     */
+    public function getTXOsByHash($wallet_uuid, $address_hash)
+    {
+        $parameters = [
+            'hash' => $address_hash,
+        ];
+        return $this->newAPIRequest('GET', $wallet_uuid . '/address/txos', $parameters);
+    }
+
     // ------------------------------------------------------------------------
     // Send methods
 

@@ -56,7 +56,7 @@ class GetBalances extends SubstationCommand
             $output->writeln("<info>Result\n" . json_encode($result, 192) . "</info>");
         } else {
             // get all addresses
-            $output->writeln("<error>adduress uuid or hash required</error>");
+            $output->writeln("<error>address uuid or hash required</error>");
         }
     }
 

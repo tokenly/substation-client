@@ -10,11 +10,13 @@ $app->add(new SubstationCLI\Commands\CreateWallet());
 $app->add(new SubstationCLI\Commands\GetWallets());
 $app->add(new SubstationCLI\Commands\AllocateAddress());
 $app->add(new SubstationCLI\Commands\GetAddress());
+$app->add(new SubstationCLI\Commands\GetTXOs());
 $app->add(new SubstationCLI\Commands\GetBalances());
 $app->add(new SubstationCLI\Commands\CreateSend());
 $app->add(new SubstationCLI\Commands\EstimateFee());
 $app->add(new SubstationCLI\Commands\CompleteSend());
 $app->add(new SubstationCLI\Commands\BroadcastSignedSend());
+$app->add(new SubstationCLI\Commands\PrimeAddress());
 
 try {
     $app->run();

@@ -52,6 +52,12 @@ class CreateSend extends SubstationCommand
                 'fee rate',
                 'medium'
             )
+
+            ->addOption(
+                'utxos', '',
+                InputOption::VALUE_OPTIONAL,
+                'UTXOs like 0000000000000000000000000000000000000000000000000000000000000001:0,0000000000000000000000000000000000000000000000000000000000000001:1'
+            )
         ;
     }
 
@@ -63,9 +69,13 @@ class CreateSend extends SubstationCommand
         $destination_quantity = CryptoQuantity::fromFloat($input->getOption('quantity'));
         $source_uuid = $input->getOption('source-id');
         $fee_rate = $input->getOption('fee-rate');
+        $utxos = $input->getOption('utxos');
 
         $send_parameters = [];
         $send_parameters['feeRate'] = $fee_rate;
+        if ($utxos) {
+            $send_parameters['txos'] = explode(",", $utxos);
+        }
 
         // init the client
         $client = $this->getClient($input);

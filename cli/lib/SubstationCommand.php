@@ -6,6 +6,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Tokenly\SubstationClient\SubstationClient;
+use Tokenly\SubstationDistributionClient\SubstationDistributionClient;
 
 class SubstationCommand extends Command
 {
@@ -65,5 +66,12 @@ class SubstationCommand extends Command
 
         return $client;
     }
+
+    protected function getDistributionClient(SubstationClient $client)
+    {
+        $distribution_client = new SubstationDistributionClient($client);
+        return $distribution_client;
+    }
+
 
 }
