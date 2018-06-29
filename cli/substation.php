@@ -11,6 +11,7 @@ $app->add(new SubstationCLI\Commands\GetWallets());
 $app->add(new SubstationCLI\Commands\AllocateAddress());
 $app->add(new SubstationCLI\Commands\GetAddress());
 $app->add(new SubstationCLI\Commands\GetTXOs());
+$app->add(new SubstationCLI\Commands\GetTransactions());
 $app->add(new SubstationCLI\Commands\GetBalances());
 $app->add(new SubstationCLI\Commands\CreateSend());
 $app->add(new SubstationCLI\Commands\EstimateFee());

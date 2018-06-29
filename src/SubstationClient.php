@@ -297,12 +297,16 @@ class SubstationClient extends TokenlyAPI
      * Fetches confirmed and unconfirmed txos for the given address id
      * Returns an array like:
      * [
-     *   'BTC' => [
-     *       'asset' => 'BTC',
-     *       'confirmed' => Tokenly\CryptoQuantity\CryptoQuantity::fromSatoshis('1000000'),
-     *       'unconfirmed' => Tokenly\CryptoQuantity\CryptoQuantity::fromSatoshis('1000000'),
-     *   ],
+     *     'items': [
+     *         [
+     *           'txid' => 'a1d34271d7ebc983d37d351759e8a195605db2a9e8bef3ad50320005807e1062',
+     *           'n' => 0,
+     *           'amount' => 100000000,
+     *           'spent' => true,
+     *         ]
+     *     ]
      * ]
+     *     
      * @param  string $wallet_uuid  wallet uuid
      * @param  string $address_uuid address uuid
      * @return array                array of combined txos
@@ -328,6 +332,84 @@ class SubstationClient extends TokenlyAPI
             'hash' => $address_hash,
         ];
         return $this->newAPIRequest('GET', $wallet_uuid . '/address/txos', $parameters);
+    }
+
+    /**
+     * Fetches confirmed and unconfirmed transactions for the given address id
+     * Returns an array like:
+     * [
+     *     'items': [
+     *          [
+     *              'chain' => 'bitcoinTestnet',
+     *              'debits' => [],
+     *              'credits' => [],
+     *              'fees' => [],
+     *              'blockhash' => '00000000000a0ad01fcc889bc7e8026b4ab0d2621a9ea3e9e176bc6c46680784',
+     *              'txid' => '30dadbef1d5bdd4ef5d87882fb959f060aeaafde616e20392eaf44211835be58',
+     *              'confirmations' => 91591,
+     *              'confirmationFinality' => 6,
+     *              'confirmed' => true,
+     *              'final' => true,
+     *              'confirmationTime' => '2017-12-22T12:43:27+00:00',
+     *          ]
+     *     ]
+     * ]
+     *     
+     * @param  string $wallet_uuid  wallet uuid
+     * @param  string $address_uuid address uuid
+     * @return array                array of transactions
+     */
+    public function getTransactionsById($wallet_uuid, $address_uuid)
+    {
+        $parameters = [
+            'uuid' => $address_uuid,
+        ];
+        return $this->newAPIRequest('GET', $wallet_uuid . '/address/transactions', $parameters);
+    }
+
+    /**
+     * Fetches confirmed and unconfirmed transactions for the given address hash
+     * @see getTransactionsById
+     * @param  string $wallet_uuid  wallet uuid
+     * @param  string $address_hash address hash like 1AAAA1111xxxxxxxxxxxxxxxxxxy43CZ9j
+     * @return array                array of transactions
+     */
+    public function getTransactionsByHash($wallet_uuid, $address_hash)
+    {
+        $parameters = [
+            'hash' => $address_hash,
+        ];
+        return $this->newAPIRequest('GET', $wallet_uuid . '/address/transactions', $parameters);
+    }
+
+    /**
+     * Fetches confirmed and unconfirmed transactions for the given address id
+     * @see getTransactionsById
+     * @param  string $wallet_uuid  wallet uuid
+     * @param  string $address_uuid address uuid
+     * @return array                single transaction data
+     */
+    public function getTransactionById($wallet_uuid, $txid, $address_uuid)
+    {
+        $parameters = [
+            'uuid' => $address_uuid,
+        ];
+        return $this->newAPIRequest('GET', $wallet_uuid . '/address/transaction/'.$txid, $parameters);
+    }
+
+    /**
+     * Fetches confirmed and unconfirmed transactions for the given address hash
+     * @see getTransactionsById
+     * @param  string $wallet_uuid  wallet uuid
+     * @param  string $address_hash address hash like 1AAAA1111xxxxxxxxxxxxxxxxxxy43CZ9j
+     * @return array                single transaction data
+     */
+    public function getTransactionByHash($wallet_uuid, $txid, $address_hash)
+    {
+        $parameters = [
+            'hash' => $address_hash,
+        ];
+        return $this->newAPIRequest('GET', $wallet_uuid . '/address/transaction/'.$txid, $parameters);
     }
 
     // ------------------------------------------------------------------------
