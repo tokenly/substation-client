@@ -2,6 +2,7 @@
 
 namespace Tokenly\SubstationClient\Mock;
 
+use Exception;
 use Ramsey\Uuid\Uuid;
 use Tokenly\CryptoQuantity\CryptoQuantity;
 use Tokenly\CryptoQuantity\EthereumCryptoQuantity;
@@ -56,23 +57,43 @@ class MockSubstationClient extends SubstationClient
     {
         switch ($blockchain_name) {
             case 'bitcoin':
-                $addresses = ['1AAAA1111xxxxxxxxxxxxxxxxxxy43CZ9j', '1AAAA2222xxxxxxxxxxxxxxxxxxy4pQ3tU', '1AAAA3333xxxxxxxxxxxxxxxxxxxsTtS6v'];
+            case 'counterparty':
+                $addresses = [
+                    '1AAAA1111xxxxxxxxxxxxxxxxxxy43CZ9j',
+                    '1AAAA2222xxxxxxxxxxxxxxxxxxy4pQ3tU',
+                    '1AAAA3333xxxxxxxxxxxxxxxxxxxsTtS6v',
+                    '1AAAA4444xxxxxxxxxxxxxxxxxxxxjbqeD',
+                ];
                 break;
             case 'bitcoinTestnet':
-                $addresses = ['mszKvXQgvN3Dv8ifidzb5tpa6oRpUZd2Mt', 'mgFRGY1KbbRTj3dMdw7KQaapvZCy6ne2Ha', 'n4nDp9W2x54oFxdWSHdf4fADLhW7grAHme'];
+            case 'counterpartyTestnet':
+                $addresses = [
+                    'mszKvXQgvN3Dv8ifidzb5tpa6oRpUZd2Mt',
+                    'mgFRGY1KbbRTj3dMdw7KQaapvZCy6ne2Ha',
+                    'n4nDp9W2x54oFxdWSHdf4fADLhW7grAHme',
+                    'mm8cb9ZqeWKQXQuevzjg4SkWiesPRd26o2',
+                ];
                 break;
             case 'ethereum':
-                $addresses = ['0x7197F280659411591feD3899C45aB20aa80d5901', '0x7f1B5e1290eA052a6A3C605FA05e3b910C768691', '0x363b777E69043439020CB3528Aa450ba85ED45F6'];
+                $addresses = [
+                    '0x7197F280659411591feD3899C45aB20aa80d5901',
+                    '0x7f1B5e1290eA052a6A3C605FA05e3b910C768691',
+                    '0x363b777E69043439020CB3528Aa450ba85ED45F6',
+                ];
                 break;
             case 'ethereumTestnet':
-                $addresses = ['0x7f1B5e1290eA052a6A3C605FA05e3b910C768691', '0x7197F280659411591feD3899C45aB20aa80d5901', '0x1CBFf6551B8713296b0604705B1a3B76D238Ae14'];
+                $addresses = [
+                    '0x7f1B5e1290eA052a6A3C605FA05e3b910C768691',
+                    '0x7197F280659411591feD3899C45aB20aa80d5901',
+                    '0x1CBFf6551B8713296b0604705B1a3B76D238Ae14',
+                ];
                 break;
             default:
                 throw new Exception("Unknown blockchain type {$blockchain_name}", 1);
         }
 
         if (!isset($addresses[$offset])) {
-            throw new Exception("Unknown address for offset $offset", 1);
+            throw new Exception("Undefined address for offset {$offset} in chain {$blockchain_name}", 1);
         }
 
         return $addresses[$offset];
