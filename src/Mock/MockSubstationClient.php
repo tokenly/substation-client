@@ -45,6 +45,16 @@ class MockSubstationClient extends SubstationClient
         self::initWallets();
         return self::$WALLET_STORE;
     }
+    
+    public static function getTransactionById($wallet_uuid, $txid, $address_uuid)
+    {
+        return self::sampleTransaction();
+    }
+    
+    public static function getTransactionByHash($wallet_uuid, $txid, $address)
+    {
+        return self::sampleTransaction();
+    }    
 
     public static function installMockSubstationClient()
     {
@@ -97,6 +107,54 @@ class MockSubstationClient extends SubstationClient
         }
 
         return $addresses[$offset];
+    }
+    
+    
+    public static function sampleTransaction($chain = 'bitcoin', $asset = 'BTC')
+    {
+        $precision = 8;
+        if($chain == 'ethereum' || $chain == 'ethereumTestnet'){
+            $precision = 18;
+        }
+        return [
+          "chain" => $chain,
+          "debits" => [
+            [
+              "address" => "1AAAA1111xxxxxxxxxxxxxxxxxxy43CZ9j",
+              "asset" => $asset,
+              "quantity" => [
+                "value" => 100000000,
+                "precision" => $precision
+              ],
+            ],
+          ],
+          "credits" => [
+            [
+              "address" => "1AAAA1111xxxxxxxxxxxxxxxxxxy43CZ9j",
+              "asset" => $asset,
+              "quantity" => [
+                "value" => 100000000,
+                "precision" => $precision
+              ],
+            ],
+          ],
+          "fees" => [
+            [
+              "asset" => $asset,
+              "quantity" => [
+                "value" => 100000000,
+                "precision" => $precision
+              ],
+            ],
+          ],
+          "blockhash" => "0000000000000000012b9d37eb4cb9729684735e6f937f6b4187bbf0fcd021a8",
+          "txid" => "a1d34271d7ebc983d37d351759e8a195605db2a9e8bef3ad50320005807e1062",
+          "confirmations" => 2,
+          "confirmationFinality" => 6,
+          "confirmed" => true,
+          "final" => false,
+          "confirmationTime" => "2016-09-03T14:30:00+0000"
+        ];
     }
 
     // ------------------------------------------------------------------------
