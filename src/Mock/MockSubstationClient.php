@@ -46,12 +46,12 @@ class MockSubstationClient extends SubstationClient
         return self::$WALLET_STORE;
     }
     
-    public static function getTransactionById($wallet_uuid, $txid, $address_uuid)
+    public function getTransactionById($wallet_uuid, $txid, $address_uuid)
     {
         return self::sampleTransaction();
     }
     
-    public static function getTransactionByHash($wallet_uuid, $txid, $address)
+    public function getTransactionByHash($wallet_uuid, $txid, $address)
     {
         return self::sampleTransaction();
     }    
