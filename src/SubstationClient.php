@@ -2,6 +2,7 @@
 
 namespace Tokenly\SubstationClient;
 
+use Exception;
 use Ramsey\Uuid\Uuid;
 use Tokenly\APIClient\TokenlyAPI;
 use Tokenly\CryptoQuantity\CryptoQuantity;
@@ -503,6 +504,63 @@ class SubstationClient extends TokenlyAPI
         ];
         return $this->newAPIRequest('PATCH', $wallet_uuid . '/send/' . $send_uuid, $parameters);
     }
+
+    /**
+     * Deletes an unsigned send that was not broadcast
+     * @param  string $wallet_uuid The wallet uuid
+     * @param  string $send_uuid The send uuid from createTransaction
+     * @return null
+     */
+    public function deleteSend($wallet_uuid, $send_uuid)
+    {
+        $parameters = [
+        ];
+        return $this->newAPIRequest('DELETE', $wallet_uuid . '/send/' . $send_uuid, $parameters);
+    }
+
+    /**
+     * Creates a new send to estimate the fee and then immediatlye deletes the send.
+     * This does not broadcast the transaction.
+     * @param  string         $wallet_uuid The wallet uuid
+     * @param  string         $source_uuid The address uuid to send from
+     * @param  string         $asset Asset name or identifier
+     * @param  CryptoQuantity $destination_quantity The quantity to send
+     * @param  string         $destination_address The destination address
+     * @param  array          $send_parameters Additional send parameters
+     * @return CryptoQuantity The estimated fee as returned from the Substation API
+     */
+    public function estimateFeeForSendToSingleDestination($wallet_uuid, $source_uuid, $asset, CryptoQuantity $destination_quantity, $destination_address, $send_parameters = null)
+    {
+        return $this->estimateFeeForSendToDestinations($wallet_uuid, $source_uuid, $asset, $this->makeSingleDestinationGroup($destination_quantity, $destination_address), $send_parameters);
+    }
+
+    /**
+     * Creates a new send to estimate the fee and then immediatlye deletes the send.
+     * This does not broadcast the transaction.
+     * @param  string $wallet_uuid The wallet uuid
+     * @param  string $source_uuid The address uuid to send from
+     * @param  string $asset Asset name or identifier
+     * @param  array  $destinations an array of destinations like [['address' => '1xxx', 'quantity' => CryptoQuantity]]
+     * @param  array  $send_parameters Additional send parameters
+     * @return CryptoQuantity The estimated fee as returned from the Substation API
+     */
+    public function estimateFeeForSendToDestinations($wallet_uuid, $source_uuid, $asset, $destinations, $send_parameters = null)
+    {
+        $send_details = $this->createNewSendTransaction($wallet_uuid, $source_uuid, $asset, $destinations, $send_parameters);
+
+        // now delete
+        try {
+            $this->deleteSend($wallet_uuid, $send_details['uuid']);
+        } catch (Exception $e) {
+            // log the exception (if log class exists) and don't throw an error
+            if (class_exists('Illuminate\Support\Facades\Log')) {
+                \Illuminate\Support\Facades\Log::error("Error (".$e->getCode().") while deleting send: ".$e->getMessage());
+            }
+        }
+
+        return $send_details['feePaid'];
+    }
+
 
     // ------------------------------------------------------------------------
 
