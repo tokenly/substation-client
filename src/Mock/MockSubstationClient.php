@@ -16,6 +16,7 @@ class MockSubstationClient extends SubstationClient
 
     static $WALLET_STORE;
     static $ADDRESS_STORE;
+    static $CHAIN;
 
     public $all_api_calls = [];
 
@@ -45,16 +46,11 @@ class MockSubstationClient extends SubstationClient
         self::initWallets();
         return self::$WALLET_STORE;
     }
-    
-    public function getTransactionById($wallet_uuid, $txid, $address_uuid)
+
+    public static function setChain($chain)
     {
-        return self::sampleTransaction();
+        self::$CHAIN = $chain;
     }
-    
-    public function getTransactionByHash($wallet_uuid, $txid, $address)
-    {
-        return self::sampleTransaction();
-    }    
 
     public static function installMockSubstationClient()
     {
@@ -180,6 +176,42 @@ class MockSubstationClient extends SubstationClient
         return self::$WALLET_STORE[$uuid];
     }
 
+    public function getAddressById($wallet_uuid, $address_uuid)
+    {
+        $chain = self::$CHAIN ?? 'bitcoinTestnet';
+        $offset = 0;
+        $address = self::sampleAddress($chain, $offset);
+
+        $address_model = [
+            'index' => $offset,
+            'address' => $address,
+            'change' => false,
+            'uuid' => Uuid::uuid4()->toString(),
+        ];
+
+        // return address
+        return $address_model;
+    }
+
+    public function getAddressByHash($wallet_uuid, $address_hash)
+    {
+        return array_merge($this->getAddressById($wallet_uuid, $_address_uuid = null), [
+            'address' => $address_hash,
+        ]);
+    }
+
+    public function getTransactionById($wallet_uuid, $txid, $address_uuid)
+    {
+        return self::sampleTransaction();
+    }
+    
+    public function getTransactionByHash($wallet_uuid, $txid, $address)
+    {
+        return self::sampleTransaction();
+    }    
+
+    // ------------------------------------------------------------------------
+    
     protected function newAPIRequest($method, $path, $parameters = [], $options = [])
     {
         $this->all_api_calls[] = [
