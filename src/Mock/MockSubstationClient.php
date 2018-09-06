@@ -18,6 +18,9 @@ class MockSubstationClient extends SubstationClient
     static $ADDRESS_STORE;
     static $CHAIN;
 
+    static $CONFIRMED_BALANCES;
+    static $UNCONFIRMED_BALANCES;
+
     public $all_api_calls = [];
 
     // ------------------------------------------------------------------------
@@ -50,6 +53,12 @@ class MockSubstationClient extends SubstationClient
     public static function setChain($chain)
     {
         self::$CHAIN = $chain;
+    }
+
+    public static function setBalances($confirmed_balances, $unconfirmed_balances = null)
+    {
+        self::$CONFIRMED_BALANCES = $confirmed_balances;
+        self::$UNCONFIRMED_BALANCES = ($unconfirmed_balances === null) ? $confirmed_balances : $unconfirmed_balances;
     }
 
     public static function installMockSubstationClient()
@@ -267,6 +276,13 @@ class MockSubstationClient extends SubstationClient
     }
     protected function newAPIRequest_GET_UUID_address_balance($parameters, $uuids, $options)
     {
+        if (self::$CONFIRMED_BALANCES !== null) {
+            return [
+                'confirmedBalances' => self::$CONFIRMED_BALANCES,
+                'unconfirmedBalances' => self::$UNCONFIRMED_BALANCES,
+            ];
+        }
+
         return [
             'confirmedBalances' => [
                 [
@@ -281,6 +297,7 @@ class MockSubstationClient extends SubstationClient
                 ],
             ],
         ];
+
     }
 
     protected function newAPIRequest_POST_UUID_sends($parameters, $uuids, $options)
