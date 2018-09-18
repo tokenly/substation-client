@@ -19,6 +19,9 @@ class SubstationClient extends TokenlyAPI
     public function __construct($api_url, $api_token, $api_secret_key)
     {
         parent::__construct($api_url, $this->getAuthenticationGenerator(), $api_token, $api_secret_key);
+
+        // set long timeouts by default
+        $this->setRequestTimeout(300);
     }
 
     // -----------------------------------------
