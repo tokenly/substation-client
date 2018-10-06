@@ -313,27 +313,32 @@ class SubstationClient extends TokenlyAPI
      *     
      * @param  string $wallet_uuid  wallet uuid
      * @param  string $address_uuid address uuid
+     * @param  integer $page        page offset
      * @return array                array of combined txos
      */
-    public function getTXOsById($wallet_uuid, $address_uuid)
+    public function getTXOsById($wallet_uuid, $address_uuid, $page = 0)
     {
         $parameters = [
             'uuid' => $address_uuid,
+            'pg' => $page,
         ];
         return $this->newAPIRequest('GET', $wallet_uuid . '/address/txos', $parameters);
     }
+
 
     /**
      * Fetches confirmed and unconfirmed txos for the given address hash
      * @see getTXOsById
      * @param  string $wallet_uuid  wallet uuid
      * @param  string $address_hash address hash like 1AAAA1111xxxxxxxxxxxxxxxxxxy43CZ9j
+     * @param  integer $page        page offset
      * @return array                array of combined txos
      */
-    public function getTXOsByHash($wallet_uuid, $address_hash)
+    public function getTXOsByHash($wallet_uuid, $address_hash, $page = 0)
     {
         $parameters = [
             'hash' => $address_hash,
+            'pg' => $page,
         ];
         return $this->newAPIRequest('GET', $wallet_uuid . '/address/txos', $parameters);
     }
@@ -361,12 +366,14 @@ class SubstationClient extends TokenlyAPI
      *     
      * @param  string $wallet_uuid  wallet uuid
      * @param  string $address_uuid address uuid
+     * @param  integer $page        page offset
      * @return array                array of transactions
      */
-    public function getTransactionsById($wallet_uuid, $address_uuid)
+    public function getTransactionsById($wallet_uuid, $address_uuid, $page = 0)
     {
         $parameters = [
             'uuid' => $address_uuid,
+            'pg' => $page,
         ];
         return $this->newAPIRequest('GET', $wallet_uuid . '/address/transactions', $parameters);
     }
@@ -376,12 +383,14 @@ class SubstationClient extends TokenlyAPI
      * @see getTransactionsById
      * @param  string $wallet_uuid  wallet uuid
      * @param  string $address_hash address hash like 1AAAA1111xxxxxxxxxxxxxxxxxxy43CZ9j
+     * @param  integer $page        page offset
      * @return array                array of transactions
      */
-    public function getTransactionsByHash($wallet_uuid, $address_hash)
+    public function getTransactionsByHash($wallet_uuid, $address_hash, $page = 0)
     {
         $parameters = [
             'hash' => $address_hash,
+            'pg' => $page,
         ];
         return $this->newAPIRequest('GET', $wallet_uuid . '/address/transactions', $parameters);
     }
