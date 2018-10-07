@@ -320,7 +320,7 @@ class SubstationClient extends TokenlyAPI
     {
         $parameters = [
             'uuid' => $address_uuid,
-            'pg' => $page,
+            'pg' => (string) $page,
         ];
         return $this->newAPIRequest('GET', $wallet_uuid . '/address/txos', $parameters);
     }
@@ -338,7 +338,7 @@ class SubstationClient extends TokenlyAPI
     {
         $parameters = [
             'hash' => $address_hash,
-            'pg' => $page,
+            'pg' => (string) $page,
         ];
         return $this->newAPIRequest('GET', $wallet_uuid . '/address/txos', $parameters);
     }
@@ -373,7 +373,7 @@ class SubstationClient extends TokenlyAPI
     {
         $parameters = [
             'uuid' => $address_uuid,
-            'pg' => $page,
+            'pg' => (string) $page,
         ];
         return $this->newAPIRequest('GET', $wallet_uuid . '/address/transactions', $parameters);
     }
@@ -390,7 +390,7 @@ class SubstationClient extends TokenlyAPI
     {
         $parameters = [
             'hash' => $address_hash,
-            'pg' => $page,
+            'pg' => (string) $page,
         ];
         return $this->newAPIRequest('GET', $wallet_uuid . '/address/transactions', $parameters);
     }
