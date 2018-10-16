@@ -310,7 +310,6 @@ class SubstationClient extends TokenlyAPI
         return $this->combineBalances($this->getAddressBalanceByHash($wallet_uuid, $address_hash));
     }
 
-
     /**
      * Fetches confirmed and unconfirmed txos for the given address id
      * Returns an array like:
@@ -324,7 +323,7 @@ class SubstationClient extends TokenlyAPI
      *         ]
      *     ]
      * ]
-     *     
+     *
      * @param  string $wallet_uuid  wallet uuid
      * @param  string $address_uuid address uuid
      * @param  integer $page        page offset
@@ -338,7 +337,6 @@ class SubstationClient extends TokenlyAPI
         ];
         return $this->newAPIRequest('GET', $wallet_uuid . '/address/txos', $parameters);
     }
-
 
     /**
      * Fetches confirmed and unconfirmed txos for the given address hash
@@ -377,7 +375,7 @@ class SubstationClient extends TokenlyAPI
      *          ]
      *     ]
      * ]
-     *     
+     *
      * @param  string $wallet_uuid  wallet uuid
      * @param  string $address_uuid address uuid
      * @param  integer $page        page offset
@@ -421,7 +419,7 @@ class SubstationClient extends TokenlyAPI
         $parameters = [
             'uuid' => $address_uuid,
         ];
-        return $this->newAPIRequest('GET', $wallet_uuid . '/address/transaction/'.$txid, $parameters);
+        return $this->newAPIRequest('GET', $wallet_uuid . '/address/transaction/' . $txid, $parameters);
     }
 
     /**
@@ -436,7 +434,7 @@ class SubstationClient extends TokenlyAPI
         $parameters = [
             'hash' => $address_hash,
         ];
-        return $this->newAPIRequest('GET', $wallet_uuid . '/address/transaction/'.$txid, $parameters);
+        return $this->newAPIRequest('GET', $wallet_uuid . '/address/transaction/' . $txid, $parameters);
     }
 
     // ------------------------------------------------------------------------
@@ -580,13 +578,12 @@ class SubstationClient extends TokenlyAPI
         } catch (Exception $e) {
             // log the exception (if log class exists) and don't throw an error
             if (class_exists('Illuminate\Support\Facades\Log')) {
-                \Illuminate\Support\Facades\Log::error("Error (".$e->getCode().") while deleting send: ".$e->getMessage());
+                \Illuminate\Support\Facades\Log::error("Error (" . $e->getCode() . ") while deleting send: " . $e->getMessage());
             }
         }
 
         return $send_details['feePaid'];
     }
-
 
     // ------------------------------------------------------------------------
 
