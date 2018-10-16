@@ -134,6 +134,20 @@ class SubstationClient extends TokenlyAPI
         return $this->newAPIRequest('POST', 'wallets', $parameters);
     }
 
+    /**
+     * Archives the given wallet
+     * This can only be executed for wallets with no allocated addresses
+     *
+     * @param  string $wallet_uuid The wallet uuid
+     * @return null
+     */
+    public function deleteWallet($wallet_uuid)
+    {
+        $parameters = [
+        ];
+        return $this->newAPIRequest('DELETE', '/wallets/' . $wallet_uuid, $parameters);
+    }
+
     // -----------------------------------------
     // address methods
 
