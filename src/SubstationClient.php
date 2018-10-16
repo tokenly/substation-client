@@ -136,7 +136,7 @@ class SubstationClient extends TokenlyAPI
 
     /**
      * Archives the given wallet
-     * This can only be executed for wallets with no allocated addresses
+     * This will permanently delete all sends associated with managed wallets
      *
      * @param  string $wallet_uuid The wallet uuid
      * @return null
@@ -145,7 +145,7 @@ class SubstationClient extends TokenlyAPI
     {
         $parameters = [
         ];
-        return $this->newAPIRequest('DELETE', '/wallets/' . $wallet_uuid, $parameters);
+        return $this->newAPIRequest('DELETE', 'wallets/' . $wallet_uuid, $parameters);
     }
 
     // -----------------------------------------
