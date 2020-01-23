@@ -16,7 +16,7 @@
     ],
     "require": {
         "php": "^7.1",
-        "illuminate/support": "~5.8",
+        "illuminate/support": "~6",
         "mockery/mockery": "^1.0",
         "ramsey/uuid": "^3.5",
         "tokenly/api-client": "dev-master",
